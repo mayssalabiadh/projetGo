@@ -1,0 +1,817 @@
+basePath: /
+definitions:
+  models.File:
+    properties:
+      URL:
+        description: Accessible via HTTP
+        type: string
+      createdAt:
+        type: string
+      file_name:
+        type: string
+      file_size:
+        type: integer
+      file_type:
+        type: string
+      id:
+        type: string
+      path:
+        description: Local path au niveau du projet
+        type: string
+      updatedAt:
+        type: string
+      user_id:
+        type: string
+    type: object
+  models.Task:
+    properties:
+      completed:
+        type: boolean
+      created_at:
+        type: string
+      createdAt:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      title:
+        type: string
+      updatedAt:
+        type: string
+      user_id:
+        type: string
+    type: object
+  models.User:
+    properties:
+      createdAt:
+        type: string
+      date_naissance:
+        type: string
+      email:
+        type: string
+      files:
+        description: Foreign key (fichiers)
+        items:
+          $ref: '#/definitions/models.File'
+        type: array
+      genre:
+        type: string
+      id:
+        type: string
+      nom:
+        type: string
+      password:
+        type: string
+      prenom:
+        type: string
+      role:
+        type: string
+      tasks:
+        description: Foreign key (taches)
+        items:
+          $ref: '#/definitions/models.Task'
+        type: array
+      updatedAt:
+        type: string
+    type: object
+  response.CompletionRate:
+    properties:
+      completion_rate:
+        type: string
+    type: object
+  response.LoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  response.UpdateUser:
+    properties:
+      nom:
+        type: string
+      prenom:
+        type: string
+    type: object
+  utils.AppError:
+    properties:
+      code:
+        type: string
+      message:
+        type: string
+      status:
+        type: integer
+    type: object
+  utils.AppSuccessCRUD:
+    properties:
+      code:
+        type: string
+      message:
+        type: string
+      status:
+        type: integer
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: mayssa@gmail.com
+    name: Développeur API
+  description: Cette API permet de gérer les utilisateurs et leurs tâches
+  title: API Utilisateurs et Tâches
+  version: "1.0"
+paths:
+  /api/tasks/:
+    get:
+      description: Extraire les tâches avec de tout les utilisateurs
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.AppSuccessCRUD'
+        "400":
+          description: Requête invalide
+          schema:
+            $ref: '#/definitions/utils.AppError'
+      security:
+      - BearerAuth: []
+      summary: Extraire les tâches
+      tags:
+      - Tâche
+    post:
+      consumes:
+      - application/json
+      description: Création d'une tâche avec les champs JSON fournis
+      parameters:
+      - description: Les données de tache à créer
+        in: body
+        name: task
+        required: true
+        schema:
+          $ref: '#/definitions/models.Task'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/utils.AppSuccessCRUD'
+        "400":
+          description: Requête invalide
+          schema:
+            $ref: '#/definitions/utils.AppError'
+        "500":
+          description: Erreur interne
+          schema:
+            $ref: '#/definitions/utils.AppError'
+      security:
+      - BearerAuth: []
+      summary: Créer une tâche
+      tags:
+      - Tâche
+  /api/tasks/{id}:
+    get:
+      description: Extraire une tâche avec son ID
+      parameters:
+      - description: ID de la tâche (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.AppSuccessCRUD'
+        "400":
+          description: Requête invalide
+          schema:
+            $ref: '#/definitions/utils.AppError'
+        "404":
+          description: Tâche introuvable
+          schema:
+            $ref: '#/definitions/utils.AppError'
+      security:
+      - BearerAuth: []
+      summary: Extraire une tâche
+      tags:
+      - Tâche
+    put:
+      consumes:
+      - application/json
+      description: Mettre à jour les informations d'une tâche avec son ID
+      parameters:
+      - description: L'ID du tâche
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Nouvelles données du Tâche
+        in: body
+        name: task
+        required: true
+        schema:
+          $ref: '#/definitions/models.Task'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.AppSuccessCRUD'
+        "400":
+          description: Requête invalide
+          schema:
+            $ref: '#/definitions/utils.AppError'
+        "404":
+          description: Tâche introuvable
+          schema:
+            $ref: '#/definitions/utils.AppError'
+      security:
+      - BearerAuth: []
+      summary: Mettre à jour une tâche
+      tags:
+      - Tâche
+  /api/tasks/filtre_date:
+    get:
+      description: Filtrer les taches par date avec limite
+      parameters:
+      - description: Date de début
+        in: query
+        name: start
+        type: string
+      - description: Date de fin
+        in: query
+        name: end
+        type: string
+      - description: Nombre des jours en arrière
+        in: query
+        name: jours
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Task'
+            type: array
+        "400":
+          description: Requête invalide
+          schema:
+            $ref: '#/definitions/utils.AppError'
+      security:
+      - BearerAuth: []
+      summary: Filtrer les taches par date
+      tags:
+      - Tâche
+  /api/tasks/filtrer:
+    get:
+      description: filterer les tâches par l'ID de l'utilisateur et la status
+      parameters:
+      - description: L'ID de l'utilisateur
+        in: query
+        name: user_id
+        type: string
+      - description: Status du tâche
+        in: query
+        name: completed
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.AppSuccessCRUD'
+        "400":
+          description: Requête invalide
+          schema:
+            $ref: '#/definitions/utils.AppError'
+      security:
+      - BearerAuth: []
+      summary: filterer les tâches
+      tags:
+      - Tâche
+  /api/tasks/paginated:
+    get:
+      description: Extraire les tâches avec pagination, en fonction du page et limit
+      parameters:
+      - description: Les pages
+        in: query
+        name: page
+        type: string
+      - description: La limite des elements
+        in: query
+        name: limit
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.AppSuccessCRUD'
+        "400":
+          description: Requête invalide
+          schema:
+            $ref: '#/definitions/utils.AppError'
+        "404":
+          description: Tâche introuvable
+          schema:
+            $ref: '#/definitions/utils.AppError'
+      security:
+      - BearerAuth: []
+      summary: Extraire les tâches avec pagination
+      tags:
+      - Tâche
+  /api/tasks/rate/{user_id}:
+    get:
+      description: Taux de completion des tâches par l'utilisateur
+      parameters:
+      - description: L'ID de l'utilisateur
+        in: path
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CompletionRate'
+        "400":
+          description: Requête invalide
+          schema:
+            $ref: '#/definitions/utils.AppError'
+      security:
+      - BearerAuth: []
+      summary: Taux de completion
+      tags:
+      - Tâche
+  /api/users/:
+    get:
+      description: Extraire les utilisateurs avec tous les tâches
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.AppSuccessCRUD'
+        "400":
+          description: Requête invalide
+          schema:
+            $ref: '#/definitions/utils.AppError'
+      security:
+      - BearerAuth: []
+      summary: Extraire les utilisateurs
+      tags:
+      - Utilisateur
+    post:
+      consumes:
+      - application/json
+      description: Création de l'utilisateur avec les champs JSON fournis
+      parameters:
+      - description: Les données de l'utilisateur à créer
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.User'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/utils.AppSuccessCRUD'
+        "400":
+          description: Requête invalide
+          schema:
+            $ref: '#/definitions/utils.AppError'
+        "500":
+          description: Erreur interne
+          schema:
+            $ref: '#/definitions/utils.AppError'
+      security:
+      - BearerAuth: []
+      summary: Créer un utilisateur
+      tags:
+      - Utilisateur
+  /api/users/{id}:
+    delete:
+      description: Supprimer un utilisateur par son ID
+      parameters:
+      - description: L'ID de l'utilisateur
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.AppSuccessCRUD'
+        "400":
+          description: Requête invalide
+          schema:
+            $ref: '#/definitions/utils.AppError'
+        "404":
+          description: Utilisateur introuvable
+          schema:
+            $ref: '#/definitions/utils.AppError'
+      security:
+      - BearerAuth: []
+      summary: Supprimer un utilisateur
+      tags:
+      - Utilisateur
+    get:
+      description: Extraire un utilisatuer avec son ID
+      parameters:
+      - description: ID de l'itulisateur (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.AppSuccessCRUD'
+        "400":
+          description: Requête invalide
+          schema:
+            $ref: '#/definitions/utils.AppError'
+        "404":
+          description: Utilisateur introuvable
+          schema:
+            $ref: '#/definitions/utils.AppError'
+      security:
+      - BearerAuth: []
+      summary: Extraire un utilisateur
+      tags:
+      - Utilisateur
+    patch:
+      consumes:
+      - application/json
+      description: Mise à jour partielle de l'utilisateur par son ID
+      parameters:
+      - description: L'ID de l'utilisateur
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Les nouvelles données de l'utilisateur
+        in: body
+        name: updateUser
+        required: true
+        schema:
+          $ref: '#/definitions/response.UpdateUser'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.AppSuccessCRUD'
+        "400":
+          description: Requête invalide
+          schema:
+            $ref: '#/definitions/utils.AppError'
+        "404":
+          description: Utilisateur introuvable
+          schema:
+            $ref: '#/definitions/utils.AppError'
+      security:
+      - BearerAuth: []
+      summary: Mise à jour partielle de l'utilisateur
+      tags:
+      - Utilisateur
+    put:
+      consumes:
+      - application/json
+      description: Mettre à jour les informations d'un utilisateur avec son ID
+      parameters:
+      - description: L'ID de l'utilisateur
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Nouvelles données utilisateur
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.AppSuccessCRUD'
+        "400":
+          description: Requête invalide
+          schema:
+            $ref: '#/definitions/utils.AppError'
+        "404":
+          description: Utilisateur introuvable
+          schema:
+            $ref: '#/definitions/utils.AppError'
+      security:
+      - BearerAuth: []
+      summary: Mettre à jour un utilisateur
+      tags:
+      - Utilisateur
+  /api/users/activity_overview:
+    get:
+      description: Récupération des utilisateurs avec ces résumés et le taux de completion
+        des taches (Avec Goroutines)
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Utilisateur introuvable
+          schema:
+            $ref: '#/definitions/utils.AppError'
+      security:
+      - BearerAuth: []
+      summary: Récupération des utilisateurs avec ces résumés
+      tags:
+      - Utilisateur
+  /api/users/get_file/{file_id}:
+    get:
+      description: Servir un fichier de la base de données avec son ID
+      parameters:
+      - description: File ID
+        in: path
+        name: file_id
+        required: true
+        type: string
+      produces:
+      - application/octet-stream
+      responses:
+        "200":
+          description: File Content
+          schema:
+            type: file
+        "400":
+          description: Requête invalide
+          schema:
+            $ref: '#/definitions/utils.AppError'
+        "500":
+          description: Erreur Interne su serveur
+          schema:
+            $ref: '#/definitions/utils.AppError'
+      security:
+      - BearerAuth: []
+      summary: Servir un fichier de la base de données
+      tags:
+      - Utilisateur
+  /api/users/paginated_files:
+    get:
+      description: Récupération des fichiers avec pagination
+      parameters:
+      - description: le numero du page
+        in: query
+        name: page
+        type: string
+      - description: la limite des elements
+        in: query
+        name: limit
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Requête invalide
+          schema:
+            $ref: '#/definitions/utils.AppError'
+        "404":
+          description: Utilisateur introuvable
+          schema:
+            $ref: '#/definitions/utils.AppError'
+        "500":
+          description: Erreur Interne su serveur
+          schema:
+            $ref: '#/definitions/utils.AppError'
+      security:
+      - BearerAuth: []
+      summary: Récupération des fichiers
+      tags:
+      - Utilisateur
+  /api/users/paginated_users:
+    get:
+      description: Extraire les utilisateurs avec pagination, en fonction du page
+        et limit
+      parameters:
+      - description: Les pages
+        in: query
+        name: page
+        type: string
+      - description: La limite des elements
+        in: query
+        name: limit
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.AppSuccessCRUD'
+        "400":
+          description: Requête invalide
+          schema:
+            $ref: '#/definitions/utils.AppError'
+        "404":
+          description: Utilisateur introuvable
+          schema:
+            $ref: '#/definitions/utils.AppError'
+      security:
+      - BearerAuth: []
+      summary: Extraire les utilisateurs avec pagination
+      tags:
+      - Utilisateur
+  /api/users/upload_file/{user_id}:
+    post:
+      consumes:
+      - multipart/form-data
+      description: 'Upload d''un fichier avec l''ID de li''utilisateur. Les extensions
+        autorisées sont : .pdf, .doc, .docx'
+      parameters:
+      - description: User ID
+        in: path
+        name: user_id
+        required: true
+        type: string
+      - description: Fichier pour l'upload
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Fichier importer avec succées
+          schema:
+            $ref: '#/definitions/models.File'
+        "400":
+          description: Requête invalide
+          schema:
+            $ref: '#/definitions/utils.AppError'
+        "500":
+          description: Erreur Interne su serveur
+          schema:
+            $ref: '#/definitions/utils.AppError'
+      security:
+      - BearerAuth: []
+      summary: Upload fu fichier
+      tags:
+      - Utilisateur
+  /api/users/user_by_email:
+    get:
+      description: Chercher un utilisateur par son Email
+      parameters:
+      - description: Email de l'utilisateur
+        in: query
+        name: email
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.AppSuccessCRUD'
+        "404":
+          description: Utilisateur introuvable
+          schema:
+            $ref: '#/definitions/utils.AppError'
+      security:
+      - BearerAuth: []
+      summary: Chercher un utilisateur
+      tags:
+      - Utilisateur
+  /api/users/user_files/{user_id}:
+    get:
+      description: Récupérer l'utilisateur et ces fichiers avec le user ID
+      parameters:
+      - description: L'ID de l'utilisateur
+        in: path
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Requête invalide
+          schema:
+            $ref: '#/definitions/utils.AppError'
+        "404":
+          description: Utilisateur introuvable
+          schema:
+            $ref: '#/definitions/utils.AppError'
+        "500":
+          description: Erreur Interne su serveur
+          schema:
+            $ref: '#/definitions/utils.AppError'
+      security:
+      - BearerAuth: []
+      summary: Récupérer l'utilisateur et ces fichiers
+      tags:
+      - Utilisateur
+  /api/users/user_overview:
+    get:
+      description: Récupération des utilisateurs avec ces résumés et le taux de completion
+        des taches (Sans Goroutines)
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Utilisateur introuvable
+          schema:
+            $ref: '#/definitions/utils.AppError'
+      security:
+      - BearerAuth: []
+      summary: Récupération des utilisateurs avec ces résumés
+      tags:
+      - Utilisateur
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Connexion de l'utilisateur avec email et mot de passe
+      parameters:
+      - description: les coordonnées de l'utilisateurs
+        in: body
+        name: loginRequest
+        required: true
+        schema:
+          $ref: '#/definitions/response.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.AppSuccessCRUD'
+        "400":
+          description: Requête invalide
+          schema:
+            $ref: '#/definitions/utils.AppError'
+        "401":
+          description: Les coordonnées invalides
+          schema:
+            $ref: '#/definitions/utils.AppError'
+        "404":
+          description: Utilisateur introuvable
+          schema:
+            $ref: '#/definitions/utils.AppError'
+      summary: Connexion de l'utilisateur
+      tags:
+      - Utilisateur
+securityDefinitions:
+  BearerAuth:
+    description: 'Saisir le token JWT comme suit : Bearer <token>'
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

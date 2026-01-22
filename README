@@ -1,0 +1,16 @@
+# ProjetGo - Mini Démo Backend Gin + PostgreSQL + Nginx
+
+## Description
+Mini projet démontrant le déploiement d'un backend Gin avec PostgreSQL, Docker et Nginx en reverse proxy.  
+Toutes les routes principales sont exposées via Nginx, avec authentification JWT pour les routes protégées.
+
+## Prérequis
+- Docker >= 24
+- Docker Compose >= 2
+- Git (pour cloner ou versionner le projet)
+
+## Installation et Déploiement
+1. Cloner le projet :
+```bash
+git clone <ton-lien-github>
+cd projetGo

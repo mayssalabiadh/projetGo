@@ -1,0 +1,45 @@
+version: "3.9"
+
+services:
+  backend:
+    build: .
+    container_name: gin-backend
+    env_file:
+      - .env
+    ports:
+      - "${GIN_PORT}:${GIN_PORT}"
+    depends_on:
+      - db
+    networks:
+      - projetnet
+
+  db:
+    image: postgres:15
+    container_name: projet-db
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - projetnet
+
+  nginx:
+    image: nginx:alpine
+    container_name: projet-nginx
+    ports:
+      - "${NGINX_PORT}:80"  
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - backend
+    networks:
+      - projetnet
+
+volumes:
+  pgdata:
+
+networks:
+  projetnet:
