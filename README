@@ -12,5 +12,5 @@ Toutes les routes principales sont exposées via Nginx, avec authentification JW
 ## Installation et Déploiement
 1. Cloner le projet :
 ```bash
-git clone <ton-lien-github>
+git clone https://github.com/mayssalabiadh/projetGo.git
 cd projetGo
